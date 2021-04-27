@@ -8,7 +8,9 @@ module CyberplatPKI
           doc.type == type && (serial == 0 || doc.subject.key_serial == serial)
         end
 
-        raise "CyberplatPKI: CRYPT_ERR_PUB_KEY_NOT_FOUND (key with specified serial has not been found in the document)" if document.nil?
+        if document.nil?
+          raise 'CyberplatPKI: CRYPT_ERR_PUB_KEY_NOT_FOUND (key with specified serial has not been found in the document)'
+        end
 
         key = Key.new
         key.serial    = document.subject.key_serial
@@ -16,13 +18,15 @@ module CyberplatPKI
         key.packets   = Packet.load Document.decode64(document.body), password
         key.signature = Packet.load Document.decode64(document.signature), password
 
-        [ key, document ]
+        [key, document]
       end
 
       def self.find_record(list, record_class)
-        record = list.find { |record| record.kind_of? record_class }
+        record = list.find { |record| record.is_a?(record_class) }
 
-        raise "CyberplatPKI: CRYPT_ERR_INVALID_PACKET_FORMAT (#{record_class.name} not found in the document)" if record.nil?
+        if record.nil?
+          raise "CyberplatPKI: CRYPT_ERR_INVALID_PACKET_FORMAT (#{record_class.name} not found in the document)"
+        end
 
         record
       end
@@ -33,16 +37,16 @@ module CyberplatPKI
     def self.new_private(source, password = nil)
       documents = Document.load source
 
-      key, document = Helpers.key_from_document_set documents, :NM, 0, password
+      key, _ = Helpers.key_from_document_set(documents, :NM, 0, password)
       key.ca_key = key
 
       key
     end
 
     def self.new_public(source, serial, ca_key = nil)
-      documents = Document.load source
+      documents = Document.load(source)
 
-      key, document = Helpers.key_from_document_set documents, :NS, serial
+      key, document = Helpers.key_from_document_set(documents, :NS, serial)
       if ca_key.nil?
         if document.subject == document.ca
           key.ca_key = key

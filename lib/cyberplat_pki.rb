@@ -13,11 +13,10 @@ require_relative 'cyberplat_pki/idea_cfb'
 
 module CyberplatPKI
   PACKET_TYPES = {
-    2  => SignaturePacket,
-    5  => PrivateKeyPacket,
-    6  => KeyPacket,
+    2 => SignaturePacket,
+    5 => PrivateKeyPacket,
+    6 => KeyPacket,
     12 => TrustPacket,
     13 => UserIdPacket
-  }
+  }.freeze
 end
-

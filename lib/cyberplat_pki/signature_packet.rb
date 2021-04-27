@@ -24,7 +24,7 @@ module CyberplatPKI
       raise "CyberplatPKI: CRYPT_ERR_INVALID_PACKET_FORMAT (invalid hash key algorithm: #{key_algorithm})" if hash_algorithm != 0x01
 
       signature.hash_msw = io.read(2)
-      signature_bits, = io.read(2).unpack("n")
+      signature_bits, = io.read(2).unpack('n')
       signature.signature = io.read (signature_bits + 7) / 8
 
       signature

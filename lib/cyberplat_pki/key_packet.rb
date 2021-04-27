@@ -29,8 +29,8 @@ module CyberplatPKI
       raise "CyberplatPKI: CRYPT_ERR_INVALID_PACKET_FORMAT (unsupported algorithm #{algorithm})" if algorithm != 1
 
       key.key = OpenSSL::PKey::RSA.new
-      key.key.n = io.read_mpi
-      key.key.e = io.read_mpi
+
+      key.key.set_key(io.read_mpi, io.read_mpi, nil)
 
       key
     end
