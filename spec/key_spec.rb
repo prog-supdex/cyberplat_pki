@@ -63,20 +63,20 @@ HELLO_WORLD
     pubkey = CyberplatPKI::Key.new_public(@pubkey, 17033)
 
     signed = privkey.sign("Hello world")
-    pubkey.verify(signed).should be_true
+    pubkey.verify(signed).should be_truthy
   end
 
   it "can verify a block" do
     pubkey = CyberplatPKI::Key.new_public(@pubkey, 17033)
 
-    pubkey.verify(SIGNED).should be_true
+    pubkey.verify(SIGNED).should be_truthy
   end
 
   it "fails verifying an invalid block" do
     pubkey = CyberplatPKI::Key.new_public(@pubkey, 17033)
 
     fail_signed = SIGNED.sub('world', 'wor1d')
-    pubkey.verify(fail_signed).should be_false
+    pubkey.verify(fail_signed).should be_falsey
   end
 
   it "properly handles Windows-1251 strings" do
@@ -84,6 +84,6 @@ HELLO_WORLD
 
     signed = privkey.sign Base64.decode64(HELLO_WORLD).force_encoding('Windows-1251')
 
-    signed.encoding.names.include?("Windows-1251").should be_true
+    signed.encoding.names.include?("Windows-1251").should be_truthy
   end
 end

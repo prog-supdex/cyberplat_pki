@@ -19,4 +19,6 @@ module CyberplatPKI
     12 => TrustPacket,
     13 => UserIdPacket
   }.freeze
+
+  NEW_API_OPENSSL_RUBY_VERSION = "2.4.6".freeze
 end

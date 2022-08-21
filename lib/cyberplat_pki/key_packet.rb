@@ -30,7 +30,12 @@ module CyberplatPKI
 
       key.key = OpenSSL::PKey::RSA.new
 
-      key.key.set_key(io.read_mpi, io.read_mpi, nil)
+      if RUBY_VERSION >= NEW_API_OPENSSL_RUBY_VERSION
+        key.key.set_key(io.read_mpi, io.read_mpi, nil)
+      else
+        key.key.n = io.read_mpi
+        key.key.e = io.read_mpi
+      end
 
       key
     end

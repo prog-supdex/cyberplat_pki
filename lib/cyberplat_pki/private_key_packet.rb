@@ -22,13 +22,19 @@ module CyberplatPKI
 
       calculated_checksum = io.checksum
 
-      key.key.set_factors(p, q)
-      key.key.set_key(public_key.n, public_key.e, d)
+      if RUBY_VERSION >= NEW_API_OPENSSL_RUBY_VERSION
+        key.key.set_factors(p, q)
+        key.key.set_key(public_key.n, public_key.e, d)
+      else
+        key.key.d = d
+        key.key.p = p
+        key.key.q = q
+      end
 
       io.checksum = nil
       io.cipher = nil
 
-      checksum, = io.read(2).unpack('n')
+      checksum, = io.read(2).unpack("n")
 
       if checksum != calculated_checksum
         raise "CyberplatPKI: CRYPT_ERR_INVALID_PASSWD (invalid MPI checksum. Expected #{checksum.to_s 16}, calculated #{calculated_checksum.to_s 16})"
@@ -36,13 +42,20 @@ module CyberplatPKI
 
       dmp1 = key.key.d % (key.key.p - 1)
       dmq1 = key.key.d % (key.key.q - 1)
-      iqmp = key.key.q.mod_inverse key.key.p
+      iqmp = key.key.q.mod_inverse(key.key.p)
 
-      key.key.set_crt_params(dmp1, dmq1, iqmp)
-      # jruby-openssl requires public key parameters to be set LAST
+      if RUBY_VERSION >= NEW_API_OPENSSL_RUBY_VERSION
+        key.key.set_crt_params(dmp1, dmq1, iqmp)
+      else
+        key.key.dmp1 = dmp1
+        key.key.dmq1 = dmq1
+        key.key.iqmp = iqmp
 
-      # key.key.n = public_key.n
-      # key.key.e = public_key.e
+        # jruby-openssl requires public key parameters to be set LAST
+
+        key.key.n = public_key.n
+        key.key.e = public_key.e
+      end
 
       key
     end
@@ -50,7 +63,7 @@ module CyberplatPKI
     def save(io, context)
       super
 
-      raise NotImplementedError, 'CyberplatPKI: PrivateKeyPacket#save is not implemented'
+      raise NotImplementedError, "CyberplatPKI: PrivateKeyPacket#save is not implemented"
     end
   end
 end

@@ -65,7 +65,7 @@ module CyberplatPKI
     def read_mpi
       header = read(2)
 
-      mpi_bits, = header.unpack('n')
+      mpi_bits, = header.unpack("n")
       data = read((mpi_bits + 7) / 8)
 
       if !cipher.nil?
